@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -24,8 +23,7 @@ namespace Client
             Console.WindowWidth = 50;
             Console.WriteLine("Please input Server IP-address and port number!");
             Console.WriteLine("IP:\n-> ");
-            serverIP = "127.0.0.1";
-            //serverIP = Console.ReadLine();
+            serverIP = Console.ReadLine();
             Console.Write("Port:\n-> ");
             Int32.TryParse(Console.ReadLine(), out port);
             if (port < 1 || port > 65536)
@@ -40,12 +38,7 @@ namespace Client
                 var bmp = MakeScreenshot();
                 TcpClient tcpClient = new TcpClient();
                 tcpClient.Connect(serverIP, port);
-                //NetworkStream netStream = tcpClient.GetStream();
                 NetworkStream stream = tcpClient.GetStream();
-
-
-
-
 
                 byte[] inputData = new byte[4];
 
@@ -53,76 +46,42 @@ namespace Client
                 {
                     int bytes = stream.Read(inputData, 0, inputData.Length);
                     interval = BitConverter.ToInt32(inputData, 0);
-
-                    //response.Append(Encoding.UTF8.GetString(inputData, 0, bytes));
                 }
                 while (stream.DataAvailable);
 
-                //do
-                //{
-   
                     timer = new System.Threading.Timer(new TimerCallback(
                         x =>
                         {
-                            if (stream.CanWrite)
+                            try
                             {
-                                byte[] data = BitmapToByte(MakeScreenshot());
-                                stream.Write(data, 0, data.Length);
+                                if (stream.CanWrite)
+                                {
+                                    byte[] data = BitmapToByte(MakeScreenshot());
+                                    stream.Write(data, 0, data.Length);
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                Console.WriteLine("Connection closed!\nCheck the Server!");
+                                if (stream != null)
+                                { stream.Close(); }
                             }
                         }
                         ), null, 0, interval);
-                //}
-                //} while (stream.CanWrite);
-
-
-
-
-                //TimeSpan ts = TimeSpan.FromSeconds(interval);
-                ///////////////////////
-                //    int num = 0;
-                //    TimerCallback tm = new TimerCallback(
-                //       x => () 
-                //    { byte[] data = BitmapToByte(bmp);
-                //    stream.Write(data, 0, data.Length);
-                //});
-                //    // создаем таймер
-                //    System.Threading.Timer timer = new System.Threading.Timer(tm, num, 0, interval);
-
-
-                ////////////////////////////
-
-                //var timer = new Timer(ts);
-                //int bytes = stream.Read(inputData, 0, inputData.Length); // получаем количество считанных байтов
-                //interval = Encoding.UTF8.GetString(inputData, 0, bytes);
-                //                string response = "Hello world!";
-
-
-                // byte[] data = BitmapToByte(bmp);
-                //stream.Write(data, 0, data.Length);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Connection closed!\nCheck the Server!");
             }
-            finally
-            {
-                //stream.Close();
-                //tcpClient.Close();
-            }
-
-            //bmp.Save(String.Format("{0}.png", DateTime.Now.ToString("yyyyMMddHHmmss")), ImageFormat.Png);
+            Console.WriteLine("To close press Enter...");
             Console.ReadLine();
         }
 
-        private static void Send(object state)
-        {
-            byte[] data = BitmapToByte(MakeScreenshot());
-
-        }
-
-
-
-
+        /// <summary>
+        /// Конвертация Bitmap в массив байт
+        /// </summary>
+        /// <param name="bitmap">изображение в Bitmap</param>
+        /// <returns>массив байт</returns>
         private static byte[] BitmapToByte(Bitmap bitmap)
         {
             using (var stream = new MemoryStream())
@@ -132,7 +91,10 @@ namespace Client
             }
         }
 
-
+        /// <summary>
+        /// Делаем снимок экрана
+        /// </summary>
+        /// <returns>снимок экрана в Bitmap</returns>
         private static Bitmap MakeScreenshot()
         {
             var bmpScreenshot = new Bitmap(Screen.PrimaryScreen.Bounds.Width,
@@ -145,7 +107,6 @@ namespace Client
                  Screen.PrimaryScreen.Bounds.Y, 0, 0, Screen.PrimaryScreen.Bounds.Size,
                  CopyPixelOperation.SourceCopy);
             return bmpScreenshot;
-            //bmpScreenshot.Save("Screenshot.png", ImageFormat.Png);
         }
     }
 }

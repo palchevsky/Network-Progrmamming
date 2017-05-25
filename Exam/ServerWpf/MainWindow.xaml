@@ -23,8 +23,8 @@
                     <TextBox x:Name="tbPort" MinWidth="70" Text="{Binding Path=Port}"></TextBox>
                 </DockPanel>
                 <DockPanel>
-                    <Button x:Name="btStart" Width="100" Command="{Binding Path=StartServerCommand}">Start Server</Button>
-                    <Button x:Name="btStop" Width="100" Command="{Binding Path=StopServerCommand}" >Stop Server</Button>
+                    <Button x:Name="btStart" Width="100" IsEnabled="{Binding Path=IsStartEnabled}" Command="{Binding Path=StartServerCommand}">Start Server</Button>
+                    <Button x:Name="btStop" Width="100" IsEnabled="{Binding Path=IsStopEnabled}" Command="{Binding Path=StopServerCommand}" >Stop Server</Button>
                 </DockPanel>
             </StackPanel>
         </TabItem>
@@ -36,7 +36,8 @@
                 </DockPanel>
                 <DockPanel>
                     <Label>Password:</Label>
-                    <TextBox x:Name="tbPassword" MinWidth="200" Text="{Binding Path=Password}"></TextBox>
+                    <TextBox x:Name="tbPassword" MinWidth="200" Text="{Binding Path=Password}" CommandManager.PreviewExecuted="tbPassword_PreviewExecuted"
+         ContextMenu="{x:Null}" FontFamily="Wingdings"></TextBox>
                 </DockPanel>
                 <DockPanel>
                     <Label>SMTP Server:</Label>

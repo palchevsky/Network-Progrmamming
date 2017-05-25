@@ -6,153 +6,161 @@ using System.Net;
 using System.Net.Mail;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace ServerWpf
 {
     public class ViewModel : Base
     {
-        #region Properties
-        private int interval;
+        #region Properties and fields
+        private bool _isStartEnabled;
+
+        public bool IsStartEnabled
+        {
+            get { return _isStartEnabled; }
+            set
+            {
+                _isStartEnabled = value;
+                OnPropertyChanged("IsStartEnabled");
+            }
+        }
+
+        private bool _isStopEnabled;
+
+        public bool IsStopEnabled
+        {
+            get { return _isStopEnabled; }
+            set
+            {
+                _isStopEnabled = value;
+                OnPropertyChanged("IsStopEnabled");
+            }
+        }
+
+        private int _interval;
 
         public int Interval
         {
-            get { return interval; }
+            get { return _interval; }
             set
             {
-                interval = value;
+                _interval = value;
                 OnPropertyChanged("Interval");
             }
         }
 
-        private int intervalForSmtp;
+        private int _intervalForSmtp;
 
         public int IntervalForSmtp
         {
-            get { return intervalForSmtp; }
+            get { return _intervalForSmtp; }
             set
             {
-                intervalForSmtp = value;
+                _intervalForSmtp = value;
                 OnPropertyChanged("IntervalForSmtp");
             }
         }
 
-        private int port;
+        private int _port;
 
         public int Port
         {
-            get { return port; }
+            get { return _port; }
             set
             {
-                port = value;
+                _port = value;
                 OnPropertyChanged("Port");
             }
         }
-        private string serverIP;
+
+        private string _serverIP;
 
         public string ServerIP
         {
-            get { return serverIP; }
+            get { return _serverIP; }
             set
             {
-                serverIP = value;
+                _serverIP = value;
                 OnPropertyChanged("ServerIP");
             }
         }
-        private string email;
+
+        private string _email;
 
         public string Email
         {
-            get { return email; }
+            get { return _email; }
             set
             {
-                email = value;
+                _email = value;
                 OnPropertyChanged("Email");
             }
         }
-        private int smtpPort;
+
+        private int _smtpPort;
 
         public int SmtpPort
         {
-            get { return smtpPort; }
+            get { return _smtpPort; }
             set
             {
-                smtpPort = value;
+                _smtpPort = value;
                 OnPropertyChanged("SmtpPort");
             }
         }
-        private string password;
+
+        private string _password;
 
         public string Password
         {
-            get { return password; }
+            get { return _password; }
             set
             {
-                password = value;
+                _password = value;
                 OnPropertyChanged("Password");
             }
         }
-        private string smtpAddress;
+
+        private string _smtpAddress;
 
         public string SmtpAddress
         {
-            get { return smtpAddress; }
+            get { return _smtpAddress; }
             set
             {
-                smtpAddress = value;
+                _smtpAddress = value;
                 OnPropertyChanged("SmtpAddress");
             }
         }
-        private IPAddress ipAddress;
+
+        private IPAddress _ipAddress;
 
         public IPAddress IpAddress
         {
-            get { return ipAddress; }
+            get { return _ipAddress; }
             set
             {
-                ipAddress = value;
+                _ipAddress = value;
                 OnPropertyChanged("IpAddress");
             }
         }
-        private List<string> listOfFiles;
+
+        private List<string> _listOfFiles;
 
         public List<string> ListOfFiles
         {
             get
             {
-                if (listOfFiles == null)
+                if (_listOfFiles == null)
                 {
-                    listOfFiles = new List<string>();
+                    _listOfFiles = new List<string>();
                 }
-                return listOfFiles;
+                return _listOfFiles;
             }
-            set { listOfFiles = value; }
-        }
-        #endregion
-
-        Timer timer;
-        object synclock = new object();
-        private static readonly ImageConverter _imageConverter = new ImageConverter();
-        //bool sent = false;
-
-        //private int interval;//+
-        //private string serverIP;//+
-        //private int port;//+
-        //private string email;//+
-        //private string password;//+
-        //private string smtpAddress;
-        //private int smtpPort;//+
-        //private IPAddress ipAddress;//+
-        TcpListener server;
-        Thread thread;
-        //List<string> listOfFiles = new List<string>();
-
-        public ViewModel()
-        {
-
+            set { _listOfFiles = value; }
         }
 
+        #region Commands
         private RelayCommand _startServerCommand;
 
         public RelayCommand StartServerCommand
@@ -163,102 +171,6 @@ namespace ServerWpf
                     _startServerCommand = new RelayCommand(ExecuteStartServerCommand);
                 return _startServerCommand;
             }
-        }
-
-        private void ExecuteStartServerCommand(object param)
-        {
-            thread = new Thread(new ThreadStart(StartServer));
-            thread.IsBackground = true;
-            thread.Start();
-            //thread.s
-            //StartServer();
-
-
-            //TimerCallback timeCB = new TimerCallback(Send);
-
-            //Timer time = new Timer(timeCB, null, 0, 1000);
-
-            try
-            {
-                timer = new Timer(new TimerCallback(Send), null, 20000, 30000);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        private void StartServer()
-        {
-            interval = 10;
-            intervalForSmtp = 60;
-            serverIP = "127.0.0.1";
-            port = 5678;
-            smtpPort = 587;
-            smtpAddress = "smtp.gmail.com";
-
-            IPAddress.TryParse(serverIP, out ipAddress);
-            server = null;
-
-            try
-            {
-                server = new TcpListener(ipAddress, port);
-
-                server.Start();
-
-                var tcpClient = server.AcceptTcpClient();
-
-                //while (true)
-                //{
-                NetworkStream stream = tcpClient.GetStream();
-
-                byte[] intervalSend = BitConverter.GetBytes(interval * 1000);
-
-                stream.Write(intervalSend, 0, intervalSend.Length);
-
-                while (stream.CanRead)
-                {
-                    byte[] data = new byte[2 * 1024 * 1024];
-                    int imageBytes = stream.Read(data, 0, data.Length); // получаем количество считанных байтов
-                    byte[] imageData = new byte[imageBytes];
-                    Array.Copy(data, imageData, imageBytes);
-                    var message = ByteArrayToBitmap(imageData);
-                    if (message != null)
-                    {
-                        string fileName = String.Format("{0}.png", DateTime.Now.ToString("yyyyMMddHHmmss"));
-                        message.Save(fileName, ImageFormat.Png);
-                        ListOfFiles.Add(fileName);
-                    }
-                }
-                //while (stream.CanRead);
-
-                ///в отдельный поток вынести цикл получения
-                //timer = new Timer(new TimerCallback(Send), null, 0, intervalForSmtp * 1000);
-                //}
-
-                tcpClient.Close();
-            }
-            catch (SocketException ex)
-            {
-                MessageBox.Show(ex.Message);
-                //if(thread.IsAlive)
-                //{
-                //    thread.Abort();
-                //}
-                //if(server!=null)
-                //{
-                //    server.Stop();
-                //}
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            //finally
-            //{
-            //    if (server != null)
-            //    { server.Stop(); }
-            //}
         }
 
         private RelayCommand _stopServerCommand;
@@ -272,17 +184,140 @@ namespace ServerWpf
                 return _stopServerCommand;
             }
         }
+        #endregion
+        
+        #endregion
 
-        private void ExecuteStopServerCommand(object param)
+        private static readonly ImageConverter _imageConverter = new ImageConverter();
+        private CancellationTokenSource _cts;
+        private CancellationToken _token;
+        private TcpListener _server;
+        private Thread _thread;
+        private Timer _timer;
+        private object _synclock = new object();
+
+        public ViewModel()
         {
-            if (thread.IsAlive)
-            {
-                thread.Abort();
-                MessageBox.Show("Server Stopped");
-            }
-            //server.Stop();
+            IsStartEnabled = true;
+            IsStopEnabled = false;
         }
 
+        /// <summary>
+        /// Обработка команды запуска сервера
+        /// </summary>
+        /// <param name="param"></param>
+        private void ExecuteStartServerCommand(object param)
+        {
+            if (_thread == null)
+            {
+                _cts = null;
+                _cts = new CancellationTokenSource();
+                _token = _cts.Token;
+
+                _thread = new Thread(StartServer);
+                _thread.IsBackground = true;
+                _thread.Start(_token);
+
+                IsStartEnabled = false;
+                IsStopEnabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Запуск сервера
+        /// </summary>
+        /// <param name="state">Токен отмены</param>
+        private void StartServer(object state)
+        {
+            CancellationToken token = (CancellationToken)state;
+
+            IPAddress.TryParse(ServerIP, out _ipAddress);
+
+            try
+            {
+                _server = new TcpListener(_ipAddress, Port);
+
+                _server.Start();
+
+                var tcpClient = _server.AcceptTcpClient();
+
+                NetworkStream stream = tcpClient.GetStream();
+
+                byte[] intervalSend = BitConverter.GetBytes(Interval * 1000);
+
+                stream.Write(intervalSend, 0, intervalSend.Length);
+
+                _timer = new Timer(new TimerCallback(Send), null, 20000, IntervalForSmtp * 1000);
+
+                while (stream.CanRead)
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        if (_timer != null)
+                        {
+                            _timer.Dispose();
+                            _timer = null;
+                        }
+                        break;
+                    }
+                    byte[] data = new byte[2 * 1024 * 1024];
+                    int imageBytes = stream.Read(data, 0, data.Length);
+                    byte[] imageData = new byte[imageBytes];
+                    Array.Copy(data, imageData, imageBytes);
+                    var message = ByteArrayToBitmap(imageData);
+                    if (message != null)
+                    {
+                        string fileName = String.Format("{0}.png", DateTime.Now.ToString("yyyyMMddHHmmss"));
+                        message.Save(fileName, ImageFormat.Png);
+                        ListOfFiles.Add(fileName);
+                    }
+                }
+                tcpClient.Close();
+                if (_server != null)
+                { _server.Stop(); }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                if (_server != null)
+                { _server.Stop(); }
+            }
+        }
+
+        /// <summary>
+        /// Обработка команды остановки сервера
+        /// </summary>
+        /// <param name="param"></param>
+        private void ExecuteStopServerCommand(object param)
+        {
+            IsStartEnabled = true;
+            IsStopEnabled = false;
+            if (_thread.IsAlive)
+            {
+                _cts.Cancel();
+                _thread = null;
+            }
+
+            if (_timer != null)
+            {
+                _timer.Dispose();
+                _timer = null;
+            }
+
+            if (_server != null)
+            {
+                _server.Stop();
+                _server = null;
+            }
+
+            ListOfFiles.Clear();
+        }
+
+        /// <summary>
+        /// Конвертация массива байтов в Bitmap
+        /// </summary>
+        /// <param name="byteArray">массив байт</param>
+        /// <returns>Изображение Bitmap</returns>
         public static Bitmap ByteArrayToBitmap(byte[] byteArray)
         {
             Bitmap bitmap = (Bitmap)_imageConverter.ConvertFrom(byteArray);
@@ -296,32 +331,43 @@ namespace ServerWpf
             return bitmap;
         }
 
+        /// <summary>
+        /// Отправка электронной почты
+        /// </summary>
+        /// <param name="obj"></param>
         private void Send(object obj)
         {
             if (ListOfFiles.Count > 0)
             {
-                lock (synclock)
+                lock (_synclock)
                 {
-                    SmtpClient smtp = new System.Net.Mail.SmtpClient(SmtpAddress, SmtpPort);
-                    smtp.EnableSsl = true;
-                    smtp.Credentials = new System.Net.NetworkCredential(Email, Password);
-                    MailAddress from = new MailAddress(email, "Test");
-                    MailAddress to = new MailAddress("xoreon@gmail.com");
-                    MailMessage m = new MailMessage(from, to);
-
-                    m.Subject = "Изображения от пользователя";
-                    m.Body = "Скриншоты прилагаются";
-                    foreach (var file in ListOfFiles)
+                    try
                     {
-                        m.Attachments.Add(new Attachment(file));
+                        SmtpClient smtp = new SmtpClient(SmtpAddress, SmtpPort);
+                        smtp.EnableSsl = true;
+                        smtp.Credentials = new NetworkCredential(Email, Password);
+                        MailAddress from = new MailAddress(Email, "Скриншот пользователей");
+                        MailAddress to = new MailAddress(Email);
+                        MailMessage m = new MailMessage(from, to);
+
+                        m.Subject = "Изображения от пользователя";
+                        m.Body = "Смотрите вложения";
+                        foreach (var file in ListOfFiles)
+                        {
+                            m.Attachments.Add(new Attachment(file));
+                        }
+                        smtp.Send(m);
+                        ListOfFiles.Clear();
                     }
-                    smtp.Send(m);
-                    //ListOfFiles.Clear();
+                    catch (SmtpException ex)
+                    {
+                        MessageBox.Show(ex.ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.ToString());
+                    }
                 }
-            }
-            else
-            {
-                MessageBox.Show("Не отправлено!");
             }
         }
     }
