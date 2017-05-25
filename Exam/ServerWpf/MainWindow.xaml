@@ -1,0 +1,57 @@
+﻿<Window x:Class="ServerWpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:lc="clr-namespace:ServerWpf"
+        Title="Server" Height="350" Width="525">
+    <Window.DataContext>
+        <lc:ViewModel></lc:ViewModel>
+    </Window.DataContext>
+    <TabControl>
+        <TabItem Header="Server Settings" x:Name="tiMainSettings">
+            <StackPanel Orientation="Vertical">
+                <DockPanel>
+                    <Label>Interval:</Label>
+                    <TextBox x:Name="tbInterval" MinWidth="50" Text="{Binding Path=Interval}"></TextBox>
+                    <Label >seconds</Label>
+                </DockPanel>
+                <DockPanel>
+                    <Label>IP Address:</Label>
+                    <TextBox x:Name="tbIP" MinWidth="200" Text="{Binding Path=ServerIP}"></TextBox>
+                </DockPanel>
+                <DockPanel>
+                    <Label>Port:</Label>
+                    <TextBox x:Name="tbPort" MinWidth="70" Text="{Binding Path=Port}"></TextBox>
+                </DockPanel>
+                <DockPanel>
+                    <Button x:Name="btStart" Width="100" Command="{Binding Path=StartServerCommand}">Start Server</Button>
+                    <Button x:Name="btStop" Width="100" Command="{Binding Path=StopServerCommand}" >Stop Server</Button>
+                </DockPanel>
+            </StackPanel>
+        </TabItem>
+        <TabItem Header="Email Settings" x:Name="tiEmail">
+            <StackPanel Orientation="Vertical">
+                <DockPanel>
+                    <Label>Email:</Label>
+                    <TextBox x:Name="tbEmail" MinWidth="200" Text="{Binding Path=Email}"></TextBox>
+                </DockPanel>
+                <DockPanel>
+                    <Label>Password:</Label>
+                    <TextBox x:Name="tbPassword" MinWidth="200" Text="{Binding Path=Password}"></TextBox>
+                </DockPanel>
+                <DockPanel>
+                    <Label>SMTP Server:</Label>
+                    <TextBox x:Name="tbSMTP" MinWidth="200" Text="{Binding Path=SmtpAddress}"></TextBox>
+                </DockPanel>
+                <DockPanel>
+                    <Label>Port:</Label>
+                    <TextBox x:Name="tbSMTPPort" MinWidth="70" Text="{Binding Path=SmtpPort}"></TextBox>
+                </DockPanel>
+                <DockPanel>
+                    <Label>Interval for sending e-mails:</Label>
+                    <TextBox x:Name="tbSmtpInterval" MinWidth="50" Text="{Binding Path=IntervalForSmtp}" ></TextBox>
+                    <Label>seconds</Label>
+                </DockPanel>
+            </StackPanel>
+        </TabItem>
+    </TabControl>
+</Window>

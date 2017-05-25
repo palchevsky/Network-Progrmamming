@@ -1,0 +1,35 @@
+﻿<Window x:Class="Client.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Client"
+        mc:Ignorable="d"
+        Title="Client" Height="350" Width="525" Closed="Window_Closed">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+    </Window.Resources>
+    <DockPanel>
+        <StackPanel Orientation="Vertical" DockPanel.Dock="Left">
+            <DockPanel>
+                <Label>Load Image:</Label>
+                <Button x:Name="btOpen" IsEnabled="False" Click="btOpen_Click">Open</Button>
+            </DockPanel>
+            <DockPanel>
+                <Label>Port:</Label>
+                <TextBox x:Name="tbPort" TextChanged="tbPort_TextChanged" >5000</TextBox>
+            </DockPanel>
+            <DockPanel>
+                <Label>Status:</Label>
+                <Label>Waiting</Label>
+            </DockPanel>
+        </StackPanel>
+        <StackPanel Orientation="Vertical">
+            <Button x:Name="btConnect" Click="btConnect_Click">Connect</Button>
+            <Button x:Name="btSend" IsEnabled="False" Click="btSend_Click">Send</Button>
+            <Button x:Name="btDisconnect" IsEnabled="False" Click="btDisconnect_Click">Disconnect</Button>
+        </StackPanel>
+    </DockPanel>
+</Window>
