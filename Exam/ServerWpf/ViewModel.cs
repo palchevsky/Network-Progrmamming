@@ -7,6 +7,7 @@ using System.Net.Mail;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace ServerWpf
 {
@@ -109,18 +110,6 @@ namespace ServerWpf
             }
         }
 
-        private string _password;
-
-        public string Password
-        {
-            get { return _password; }
-            set
-            {
-                _password = value;
-                OnPropertyChanged("Password");
-            }
-        }
-
         private string _smtpAddress;
 
         public string SmtpAddress
@@ -194,6 +183,7 @@ namespace ServerWpf
         private TcpListener _server;
         private Thread _thread;
         private Timer _timer;
+        private PasswordBox _passwordBox;
         private object _synclock = new object();
 
         public ViewModel()
@@ -208,6 +198,8 @@ namespace ServerWpf
         /// <param name="param"></param>
         private void ExecuteStartServerCommand(object param)
         {
+            _passwordBox = param as PasswordBox;
+
             if (_thread == null)
             {
                 _cts = null;
@@ -345,7 +337,7 @@ namespace ServerWpf
                     {
                         SmtpClient smtp = new SmtpClient(SmtpAddress, SmtpPort);
                         smtp.EnableSsl = true;
-                        smtp.Credentials = new NetworkCredential(Email, Password);
+                        smtp.Credentials = new NetworkCredential(Email, _passwordBox.Password);
                         MailAddress from = new MailAddress(Email, "Скриншот пользователей");
                         MailAddress to = new MailAddress(Email);
                         MailMessage m = new MailMessage(from, to);
